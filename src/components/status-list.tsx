@@ -118,7 +118,7 @@ export function StatusList({ statuses, mentees, today }: { statuses: Status[]; m
 function StatusCard({ status: s, today }: { status: Status; today: string }) {
   return (
     <div className="card">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0 space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">

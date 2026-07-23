@@ -48,8 +48,8 @@ export default async function MenteesPage() {
         </Dropdown>
       </div>
 
-      <div className="overflow-hidden" style={{ border: "1px solid #333" }}>
-        <table className="w-full text-sm font-mono">
+      <div className="overflow-x-auto" style={{ border: "1px solid #333" }}>
+        <table className="w-full text-sm font-mono" style={{ minWidth: 500 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #333", background: "#1f1f1f" }}>
               <th className="px-4 py-2.5 font-medium" style={{ color: "#888", textAlign: "left" }}>name</th>

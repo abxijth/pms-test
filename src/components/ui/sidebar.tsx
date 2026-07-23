@@ -18,13 +18,14 @@ const navItems = [
   { href: "/status", label: "Daily Status", icon: FileText },
 ]
 
-export function Sidebar() {
+export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
 
   return (
     <aside
       style={{
         width: 200,
+        height: "100%",
         background: "#151515",
         borderRight: "1px solid #222",
         display: "flex",
@@ -50,6 +51,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               style={{
                 display: "flex",
                 alignItems: "center",

@@ -72,7 +72,7 @@ export default async function MenteePage({ params }: { params: Promise<{ id: str
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "attendance", value: `${rate}%` },
           { label: "sessions", value: `${attended}/${total}` },
@@ -88,7 +88,7 @@ export default async function MenteePage({ params }: { params: Promise<{ id: str
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="card">
           <p className="text-sm font-mono mb-3" style={{ color: "#888" }}>{"$"} details</p>
           <dl className="space-y-2 text-sm font-mono">
@@ -161,7 +161,8 @@ export default async function MenteePage({ params }: { params: Promise<{ id: str
         {mentee.submissions.length === 0 ? (
           <p className="text-sm font-mono" style={{ color: "#666" }}>none</p>
         ) : (
-          <table className="w-full text-sm font-mono">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm font-mono" style={{ minWidth: 400 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #333", background: "#1f1f1f" }}>
                 <th className="px-4 py-2" style={{ color: "#888", textAlign: "left" }}>task</th>
@@ -187,6 +188,7 @@ export default async function MenteePage({ params }: { params: Promise<{ id: str
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

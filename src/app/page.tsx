@@ -16,7 +16,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="card" style={{ borderLeft: "3px solid #3b82f6" }}>
           <div className="flex items-center gap-3">
             <Users size={18} style={{ color: "#3b82f6" }} />
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="card">
           <div className="font-mono text-xs mb-3" style={{ color: "#3b82f6" }}>
             {"#"} attendance
@@ -74,7 +74,7 @@ export default async function DashboardPage() {
         <div className="font-mono text-xs mb-3" style={{ color: "#f59e0b" }}>
           {"#"} progress
         </div>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ProgressBar
             value={stats.attendanceRate}
             max={100}
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="card">
           <div className="font-mono text-xs mb-3" style={{ color: "#888" }}>
             {"$"} recent sessions

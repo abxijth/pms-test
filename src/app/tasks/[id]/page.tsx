@@ -90,13 +90,13 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
                 className="flex items-center justify-between px-3 py-2.5 text-sm font-mono"
                 style={{ border: "1px solid #333", background: "#1f1f1f" }}
               >
-                <div className="flex items-center gap-3">
-                  <span style={{ color: "#e5e5e5" }}>{mentee.name}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+                  <span style={{ color: "#e5e5e5", whiteSpace: "nowrap" }}>{mentee.name}</span>
                   {sub?.githubLink && (
                     <a href={sub.githubLink} target="_blank" style={{ color: "#3b82f6", fontSize: 11 }}>view submission</a>
                   )}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   <span className="flex items-center gap-1 px-2 py-0.5 text-xs" style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color }}>
                     {meta.icon}{meta.label}
                   </span>

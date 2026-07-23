@@ -24,12 +24,13 @@ export function Dropdown({
   }, [open])
 
   return (
-    <div ref={ref} className="relative" style={{ position: "relative" }}>
+    <div ref={ref} style={{ position: "relative" }}>
       <div onClick={() => setOpen((p) => !p)} style={{ cursor: "pointer" }}>
         {trigger}
       </div>
       {open && (
         <div
+          className="dropdown-panel"
           style={{
             position: "absolute",
             right: 0,

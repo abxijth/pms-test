@@ -170,7 +170,11 @@ export async function getTasks() {
   return prisma.task.findMany({
     orderBy: { dueDate: "asc" },
     include: {
-      _count: { select: { submissions: true } },
+      _count: {
+        select: {
+          submissions: { where: { status: { in: ["submitted", "reviewed"] } } },
+        },
+      },
     },
   })
 }
@@ -364,8 +368,10 @@ export async function getDashboardStats() {
   const tasks = await prisma.task.findMany({
     orderBy: { id: "asc" },
     include: {
-      _count: { select: { submissions: true } },
-      submissions: { where: { status: { in: ["submitted", "reviewed"] } } },
+      submissions: {
+        where: { status: { in: ["submitted", "reviewed"] } },
+        select: { id: true },
+      },
     },
   })
 

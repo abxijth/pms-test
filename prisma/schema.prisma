@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(cuid())
   name          String
   role          String    @default("mentor")
   color         String    @default("#6366f1")
@@ -99,7 +99,7 @@ model DailyStatus {
 
 model Account {
   id                String  @id @default(cuid())
-  userId            Int
+  userId            String
   type              String
   provider          String
   providerAccountId String
@@ -119,7 +119,7 @@ model Account {
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       Int
+  userId       String
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

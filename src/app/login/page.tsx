@@ -1,5 +1,7 @@
 import { signIn } from "@/auth"
 
+export const dynamic = "force-dynamic"
+
 export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: "#1a1a1a", color: "#e5e5e5" }}>

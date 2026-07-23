@@ -80,7 +80,13 @@ export async function getMeetings() {
   await requireAuth()
   return prisma.meeting.findMany({
     orderBy: { date: "desc" },
-    include: { _count: { select: { attendance: true } } },
+    include: {
+      _count: {
+        select: {
+          attendance: { where: { status: "present" } },
+        },
+      },
+    },
   })
 }
 

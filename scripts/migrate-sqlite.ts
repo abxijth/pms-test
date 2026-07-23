@@ -1,6 +1,6 @@
 import "dotenv/config"
 import Database from "better-sqlite3"
-import { PrismaClient } from "../src/generated/prisma/client"
+import { PrismaClient } from "@prisma/client"
 
 const sqlite = new Database("prisma/dev.db")
 const prisma = new PrismaClient()

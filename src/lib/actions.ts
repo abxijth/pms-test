@@ -9,8 +9,8 @@ import { checkRateLimit } from "./rate-limit"
 
 async function requireAuth() {
   const sess = await auth()
-  if (!sess?.user) throw new Error("Unauthorized")
-  return sess.user
+  if (!sess?.user?.id) throw new Error("Unauthorized")
+  return sess.user as { id: string; email?: string | null; name?: string | null }
 }
 
 function sanitize(str: string): string {
@@ -27,14 +27,14 @@ const menteeSchema = z.object({
 })
 
 export async function getMentees() {
-  await requireAuth()
-  return prisma.mentee.findMany({ orderBy: { name: "asc" } })
+  const user = await requireAuth()
+  return prisma.mentee.findMany({ where: { mentorId: user.id }, orderBy: { name: "asc" } })
 }
 
 export async function getMentee(id: number) {
-  await requireAuth()
-  return prisma.mentee.findUnique({
-    where: { id },
+  const user = await requireAuth()
+  return prisma.mentee.findFirst({
+    where: { id, mentorId: user.id },
     include: {
       attendance: { include: { meeting: true } },
       submissions: { include: { task: true } },
@@ -49,7 +49,7 @@ export async function createMentee(data: z.infer<typeof menteeSchema>) {
   if (!success) throw new Error("Rate limit exceeded")
 
   const parsed = menteeSchema.parse(data)
-  await prisma.mentee.create({ data: parsed })
+  await prisma.mentee.create({ data: { ...parsed, mentorId: sess.id } })
   revalidatePath("/mentees")
   revalidatePath("/")
 }
@@ -60,7 +60,7 @@ export async function updateMentee(id: number, data: z.infer<typeof menteeSchema
   if (!success) throw new Error("Rate limit exceeded")
 
   const parsed = menteeSchema.parse(data)
-  await prisma.mentee.update({ where: { id }, data: parsed })
+  await prisma.mentee.updateMany({ where: { id, mentorId: sess.id }, data: parsed })
   revalidatePath("/mentees")
   revalidatePath(`/mentees/${id}`)
   revalidatePath("/")
@@ -71,14 +71,15 @@ export async function deleteMentee(id: number) {
   const { success } = await checkRateLimit(`delete-mentee-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
 
-  await prisma.mentee.delete({ where: { id } })
+  await prisma.mentee.deleteMany({ where: { id, mentorId: sess.id } })
   revalidatePath("/mentees")
   revalidatePath("/")
 }
 
 export async function getMeetings() {
-  await requireAuth()
+  const user = await requireAuth()
   return prisma.meeting.findMany({
+    where: { mentorId: user.id },
     orderBy: { date: "desc" },
     include: {
       _count: {
@@ -91,9 +92,9 @@ export async function getMeetings() {
 }
 
 export async function getMeeting(id: number) {
-  await requireAuth()
-  return prisma.meeting.findUnique({
-    where: { id },
+  const user = await requireAuth()
+  return prisma.meeting.findFirst({
+    where: { id, mentorId: user.id },
     include: {
       attendance: {
         include: { mentee: true },
@@ -113,6 +114,7 @@ export async function createMeeting(data: { date: string; title: string; descrip
       title: sanitize(data.title),
       description: data.description ? sanitize(data.description) : "",
       transcript: data.transcript ? sanitize(data.transcript) : "",
+      mentorId: sess.id,
     },
   })
   revalidatePath("/sessions")
@@ -124,8 +126,8 @@ export async function updateMeeting(id: number, data: { date: string; title: str
   const { success } = await checkRateLimit(`update-meeting-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
 
-  await prisma.meeting.update({
-    where: { id },
+  await prisma.meeting.updateMany({
+    where: { id, mentorId: sess.id },
     data: {
       date: new Date(data.date),
       title: sanitize(data.title),
@@ -143,7 +145,7 @@ export async function deleteMeeting(id: number) {
   const { success } = await checkRateLimit(`delete-meeting-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
 
-  await prisma.meeting.delete({ where: { id } })
+  await prisma.meeting.deleteMany({ where: { id, mentorId: sess.id } })
   revalidatePath("/sessions")
   revalidatePath("/")
 }
@@ -152,6 +154,18 @@ export async function toggleAttendance(meetingId: number, menteeId: number) {
   const sess = await requireAuth()
   const { success } = await checkRateLimit(`toggle-attendance-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
+
+  const meeting = await prisma.meeting.findFirst({
+    where: { id: meetingId, mentorId: sess.id },
+    select: { id: true },
+  })
+  if (!meeting) throw new Error("Meeting not found")
+
+  const mentee = await prisma.mentee.findFirst({
+    where: { id: menteeId, mentorId: sess.id },
+    select: { id: true },
+  })
+  if (!mentee) throw new Error("Mentee not found")
 
   const existing = await prisma.attendance.findUnique({
     where: { meetingId_menteeId: { meetingId, menteeId } },
@@ -172,8 +186,9 @@ export async function toggleAttendance(meetingId: number, menteeId: number) {
 }
 
 export async function getTasks() {
-  await requireAuth()
+  const user = await requireAuth()
   return prisma.task.findMany({
+    where: { mentorId: user.id },
     orderBy: { dueDate: "asc" },
     include: {
       _count: {
@@ -186,9 +201,9 @@ export async function getTasks() {
 }
 
 export async function getTask(id: number) {
-  await requireAuth()
-  return prisma.task.findUnique({
-    where: { id },
+  const user = await requireAuth()
+  return prisma.task.findFirst({
+    where: { id, mentorId: user.id },
     include: {
       submissions: {
         include: { mentee: true },
@@ -208,6 +223,7 @@ export async function createTask(data: { title: string; description?: string; du
       title: sanitize(data.title),
       description: data.description ? sanitize(data.description) : "",
       dueDate: new Date(data.dueDate),
+      mentorId: sess.id,
     },
   })
   revalidatePath("/tasks")
@@ -219,8 +235,8 @@ export async function updateTask(id: number, data: { title: string; description?
   const { success } = await checkRateLimit(`update-task-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
 
-  await prisma.task.update({
-    where: { id },
+  await prisma.task.updateMany({
+    where: { id, mentorId: sess.id },
     data: {
       title: sanitize(data.title),
       description: data.description ? sanitize(data.description) : "",
@@ -237,7 +253,7 @@ export async function deleteTask(id: number) {
   const { success } = await checkRateLimit(`delete-task-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
 
-  await prisma.task.delete({ where: { id } })
+  await prisma.task.deleteMany({ where: { id, mentorId: sess.id } })
   revalidatePath("/tasks")
   revalidatePath("/")
 }
@@ -246,6 +262,18 @@ export async function updateSubmission(taskId: number, menteeId: number, data: {
   const sess = await requireAuth()
   const { success } = await checkRateLimit(`update-submission-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
+
+  const task = await prisma.task.findFirst({
+    where: { id: taskId, mentorId: sess.id },
+    select: { id: true },
+  })
+  if (!task) throw new Error("Task not found")
+
+  const mentee = await prisma.mentee.findFirst({
+    where: { id: menteeId, mentorId: sess.id },
+    select: { id: true },
+  })
+  if (!mentee) throw new Error("Mentee not found")
 
   const existing = await prisma.submission.findUnique({
     where: { taskId_menteeId: { taskId, menteeId } },
@@ -270,8 +298,9 @@ export async function updateSubmission(taskId: number, menteeId: number, data: {
 }
 
 export async function getDailyStatuses() {
-  await requireAuth()
+  const user = await requireAuth()
   return prisma.dailyStatus.findMany({
+    where: { mentee: { mentorId: user.id } },
     orderBy: { date: "desc" },
     take: 50,
     include: { mentee: { select: { name: true } } },
@@ -290,6 +319,12 @@ export async function createDailyStatus(data: {
   const sess = await requireAuth()
   const { success } = await checkRateLimit(`create-status-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
+
+  const mentee = await prisma.mentee.findFirst({
+    where: { id: data.menteeId, mentorId: sess.id },
+    select: { id: true },
+  })
+  if (!mentee) throw new Error("Mentee not found")
 
   await prisma.dailyStatus.create({
     data: {
@@ -318,6 +353,12 @@ export async function updateDailyStatus(id: number, data: {
   const { success } = await checkRateLimit(`update-status-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
 
+  const status = await prisma.dailyStatus.findFirst({
+    where: { id, mentee: { mentorId: sess.id } },
+    select: { id: true },
+  })
+  if (!status) throw new Error("Status not found")
+
   await prisma.dailyStatus.update({
     where: { id },
     data: {
@@ -338,22 +379,34 @@ export async function deleteDailyStatus(id: number) {
   const { success } = await checkRateLimit(`delete-status-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
 
+  const status = await prisma.dailyStatus.findFirst({
+    where: { id, mentee: { mentorId: sess.id } },
+    select: { id: true },
+  })
+  if (!status) throw new Error("Status not found")
+
   await prisma.dailyStatus.delete({ where: { id } })
   revalidatePath("/status")
   revalidatePath("/")
 }
 
 export async function getDashboardStats() {
-  await requireAuth()
+  const user = await requireAuth()
 
   const [menteeCount, meetingCount, taskCount, activeMentees, attendance, submissions, droppedCount] = await Promise.all([
-    prisma.mentee.count(),
-    prisma.meeting.count(),
-    prisma.task.count(),
-    prisma.mentee.count({ where: { status: "active" } }),
-    prisma.attendance.findMany({ select: { status: true } }),
-    prisma.submission.findMany({ select: { status: true } }),
-    prisma.mentee.count({ where: { status: "dropped" } }),
+    prisma.mentee.count({ where: { mentorId: user.id } }),
+    prisma.meeting.count({ where: { mentorId: user.id } }),
+    prisma.task.count({ where: { mentorId: user.id } }),
+    prisma.mentee.count({ where: { mentorId: user.id, status: "active" } }),
+    prisma.attendance.findMany({
+      where: { mentee: { mentorId: user.id } },
+      select: { status: true },
+    }),
+    prisma.submission.findMany({
+      where: { mentee: { mentorId: user.id } },
+      select: { status: true },
+    }),
+    prisma.mentee.count({ where: { mentorId: user.id, status: "dropped" } }),
   ])
 
   const totalAttendance = attendance.length
@@ -364,6 +417,7 @@ export async function getDashboardStats() {
   const reviewedCount = submissions.filter((s) => s.status === "reviewed").length
 
   const meetings = await prisma.meeting.findMany({
+    where: { mentorId: user.id },
     orderBy: { date: "asc" },
     include: {
       _count: { select: { attendance: true } },
@@ -372,6 +426,7 @@ export async function getDashboardStats() {
   })
 
   const tasks = await prisma.task.findMany({
+    where: { mentorId: user.id },
     orderBy: { id: "asc" },
     include: {
       submissions: {
@@ -407,6 +462,7 @@ export async function getDashboardStats() {
     taskChartData,
     recentSessions: meetings.reverse().slice(0, 5),
     recentStatuses: await prisma.dailyStatus.findMany({
+      where: { mentee: { mentorId: user.id } },
       orderBy: { date: "desc" },
       take: 5,
       include: { mentee: { select: { name: true } } },

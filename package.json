@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && prisma migrate deploy",
     "start": "next start",
     "lint": "eslint"
   },
@@ -26,7 +26,6 @@
     "prisma": "^6.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "recharts": "^3.10.0",
     "sanitize-html": "^2.17.6",
     "zod": "^4.4.3"
   },

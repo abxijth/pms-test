@@ -23,9 +23,10 @@ async function migrate() {
   await prisma.$executeRawUnsafe(`SELECT setval('"DailyStatus_id_seq"', 1, false)`)
 
   // 1. Migrate mentors -> users
+  let primaryUserId: string | null = null
   const mentors = sqlite.prepare("SELECT * FROM Mentor").all() as any[]
   for (const m of mentors) {
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         name: m.name,
         role: m.role,
@@ -33,6 +34,7 @@ async function migrate() {
         email: m.name === "Abhijth" ? "abhijithrpillai231@gmail.com" : null,
       },
     })
+    if (m.role === "primary") primaryUserId = user.id
   }
 
   // 2. Migrate sessions -> meetings (track old->new id mapping)
@@ -45,6 +47,7 @@ async function migrate() {
         title: s.title,
         description: s.description ?? "",
         transcript: s.transcript ?? "",
+        mentorId: primaryUserId!,
       },
     })
     meetingIdMap.set(s.id, created.id)
@@ -62,6 +65,7 @@ async function migrate() {
         interests: m.interests ?? "",
         githubUrl: m.githubUrl ?? "",
         status: m.status ?? "active",
+        mentorId: primaryUserId!,
       },
     })
     menteeIdMap.set(m.id, created.id)
@@ -92,6 +96,7 @@ async function migrate() {
         title: t.title,
         description: t.description ?? "",
         dueDate: new Date(t.dueDate ?? Date.now()),
+        mentorId: primaryUserId!,
       },
     })
     taskIdMap.set(t.id, created.id)

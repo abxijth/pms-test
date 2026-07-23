@@ -18,6 +18,8 @@ async function main() {
     ],
   })
 
+  const user = await prisma.user.findFirst({ where: { email: "abhijithrpillai231@gmail.com" } })
+
   const mentees = [
     { name: "Akshath", branch: "CSE", place: "", interests: "" },
     { name: "Archana Anilkumar", branch: "", place: "", interests: "" },
@@ -37,7 +39,7 @@ async function main() {
   ]
 
   for (const m of mentees) {
-    await prisma.mentee.create({ data: m })
+    await prisma.mentee.create({ data: { ...m, mentorId: user!.id } })
   }
 
   const session = await prisma.meeting.create({
@@ -45,6 +47,7 @@ async function main() {
       date: new Date("2026-07-20"),
       title: "Introductory Meeting",
       description: "First meeting - introductions, expectations, and overview of the program.",
+      mentorId: user!.id,
       transcript: `Hi all, Myself Abhijth, and i will be your primary mentor this time. Im from kollam, and im currently pursuing my 2nd year of B.Tech in CSE AI branch.
 
 Along with me, we have two senior mentors, Nishta Didi and Khushal bhaiyya.
@@ -79,6 +82,7 @@ This club isn't just about coding - we have FOSS Play (weekend games) and FOSS T
       title: "Task 1: Introduction & Setup",
       description: "Create a GitHub repository with a README.md introducing yourself. Include your background, why you want to join FOSS, and what motivates you.",
       dueDate: new Date("2026-07-27"),
+      mentorId: user!.id,
     },
   })
 

@@ -77,7 +77,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
                 key={mentee.id}
                 action={async () => {
                   "use server"
-                  await toggleAttendance(meeting.id, mentee.id, status === "present" ? "absent" : "present")
+                  await toggleAttendance(meeting.id, mentee.id)
                 }}
               >
                 <button

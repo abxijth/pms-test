@@ -142,7 +142,7 @@ export async function deleteMeeting(id: number) {
   revalidatePath("/")
 }
 
-export async function toggleAttendance(meetingId: number, menteeId: number, status: string) {
+export async function toggleAttendance(meetingId: number, menteeId: number) {
   const sess = await requireAuth()
   const { success } = await checkRateLimit(`toggle-attendance-${sess.id}`)
   if (!success) throw new Error("Rate limit exceeded")
@@ -151,13 +151,14 @@ export async function toggleAttendance(meetingId: number, menteeId: number, stat
     where: { meetingId_menteeId: { meetingId, menteeId } },
   })
   if (existing) {
+    const newStatus = existing.status === "present" ? "absent" : "present"
     await prisma.attendance.update({
       where: { id: existing.id },
-      data: { status },
+      data: { status: newStatus },
     })
   } else {
     await prisma.attendance.create({
-      data: { meetingId, menteeId, status },
+      data: { meetingId, menteeId, status: "present" },
     })
   }
   revalidatePath(`/sessions/${meetingId}`)

@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  html {
+    background: #1a1a1a;
+  }
+  select, input, textarea, button {
+    font-family: inherit;
+  }
+  ::selection {
+    background: #3b82f6;
+    color: #fff;
+  }
+  option {
+    background: #222;
+    color: #e5e5e5;
+  }
+  summary {
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  th {
+    font-weight: 500;
+    color: #888;
+    font-size: 0.875rem;
+    text-align: left;
+  }
+  td {
+    text-align: left;
+  }
+  a {
+    color: #3b82f6;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+:root {
+  --canvas: #1a1a1a;
+  --panel: #222;
+  --border: #333;
+  --text: #e5e5e5;
+  --accent: #3b82f6;
+}
+
+@theme inline {
+  --color-background: var(--canvas);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  border-radius: 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-ghost {
+  color: #888;
+  background: transparent;
+}
+.btn-ghost:hover {
+  background: #333;
+  color: #e5e5e5;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  background: var(--panel);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  border-radius: 6px;
+}
+.input:focus {
+  border-color: var(--accent);
+}
+.input::placeholder {
+  color: #555;
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23888' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2rem;
+}
+
+textarea.input {
+  resize: vertical;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+.badge-green {
+  border-color: #166534;
+  color: #86efac;
+  background: #052e16;
+}
+
+.badge-yellow {
+  border-color: #854d0e;
+  color: #fde68a;
+  background: #422006;
+}
+
+.badge-red {
+  border-color: #991b1b;
+  color: #fca5a5;
+  background: #450a0a;
+}
+
+.badge-gray {
+  border-color: #444;
+  color: #aaa;
+  background: #2a2a2a;
+}
+
+.badge-blue {
+  border-color: #1e40af;
+  color: #93c5fd;
+  background: #172554;
+}
+
+details > div {
+  border-radius: 8px;
+}
+
+table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+.session-link:hover {
+  border-color: #3b82f6 !important;
+}
+.task-link:hover {
+  border-color: #22c55e !important;
+}
+.attendance-absent:hover {
+  background: #1f1f1f !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}

@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String
+  role          String
+  color         String    @default("#6366f1")
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  accounts  Account[]
+  sessions  Session[]
+}
+
+model Mentee {
+  id        Int     @id @default(autoincrement())
+  name      String
+  branch    String  @default("")
+  place     String  @default("")
+  interests String  @default("")
+  githubUrl String  @default("")
+  status    String  @default("active")
+
+  attendance  Attendance[]
+  submissions  Submission[]
+  dailyStatus  DailyStatus[]
+}
+
+model Meeting {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  title       String
+  description String   @default("")
+  transcript  String   @default("")
+
+  attendance  Attendance[]
+}
+
+model Attendance {
+  id        Int     @id @default(autoincrement())
+  meetingId Int
+  menteeId  Int
+  status    String  @default("absent")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  mentee  Mentee  @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, menteeId])
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @default("")
+  dueDate     DateTime @default(now())
+
+  submissions Submission[]
+}
+
+model Submission {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  menteeId  Int
+  status    String   @default("pending")
+  githubLink String  @default("")
+  notes     String   @default("")
+  updatedAt DateTime @updatedAt
+
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  mentee Mentee @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, menteeId])
+}
+
+model DailyStatus {
+  id          Int      @id @default(autoincrement())
+  menteeId    Int
+  date        DateTime @default(now())
+  workDone    String
+  workPlanned String   @default("")
+  blockers    String   @default("")
+  hoursWorked Float    @default(0)
+  tags        String   @default("")
+
+  mentee Mentee @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            Int
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

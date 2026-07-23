@@ -377,7 +377,7 @@ export async function getDashboardStats() {
 
   const taskChartData = tasks.map((t) => ({
     name: t.title.length > 20 ? t.title.slice(0, 20) + "..." : t.title,
-    submitted: t._count.submissions,
+    submitted: t.submissions.length,
     total: menteeCount,
   }))
 

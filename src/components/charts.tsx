@@ -83,10 +83,7 @@ export function ProgressBar({
   label: string
   color?: string
 }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0
-  const filled = Math.round(pct / 2)
-  const empty = 50 - filled
-  const bar = "█".repeat(Math.max(0, filled)) + "░".repeat(Math.max(0, empty))
+  const pct = max > 0 ? Math.min(Math.round((value / max) * 100), 100) : 0
 
   return (
     <div className="font-mono" style={{ fontSize: 13 }}>
@@ -94,7 +91,25 @@ export function ProgressBar({
         <span style={{ color: muted }}>{label}</span>
         <span style={{ color: text }}>{pct}%</span>
       </div>
-      <div style={{ color, letterSpacing: "1px", lineHeight: 1.4 }}>{bar}</div>
+      <div
+        style={{
+          width: "100%",
+          height: 20,
+          background: "#1a1a1a",
+          borderRadius: 4,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${pct}%`,
+            height: "100%",
+            background: color,
+            borderRadius: 4,
+            transition: "width 0.3s ease",
+          }}
+        />
+      </div>
     </div>
   )
 }

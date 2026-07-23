@@ -62,6 +62,7 @@
   border: 1px solid var(--border);
   padding: 1.25rem;
   border-radius: 8px;
+  overflow: hidden;
 }
 
 .btn {
